@@ -2,6 +2,7 @@ package com.test
 
 import grails.validation.ValidationException
 import static org.springframework.http.HttpStatus.*
+import com.xlson.groovycsv.CsvParser
 
 class CompanyController {
 
@@ -23,6 +24,41 @@ class CompanyController {
         if (!company.getName().isEmpty()) {
             render(view: 'show', model: [company: companyService.get(company.getId())])
         } else redirect(action: "index")
+    }
+
+    def findByStreet (String street){
+        def company = Company.findByStreet(street)
+        if (!company.getName().isEmpty()) {
+            render(view: 'show', model: [company: companyService.get(company.getId())])
+        } else redirect(action: "index")
+    }
+
+    def findByEmail (String email){
+        def company = Company.findByEmail(email)
+        if (!company.getName().isEmpty()) {
+            render(view: 'show', model: [company: companyService.get(company.getId())])
+        } else redirect(action: "index")
+    }
+
+    def upload = {
+//        def company = new Company()
+//        new File("users.csv").splitEachLine(",") { fields ->
+//            company.add(
+//                    name: fields[0],
+//                    email: fields[1],
+//                    street: fields[2])
+
+        println params.filecsv
+        def data = CsvParser.parseCsv('filecsv')
+        for (line in data) {
+            def company = new Company(
+                    name: "${line.name}",
+                    street: "${line.street}",
+                    email: "${line.email}",
+                    zip: "${line.zip}"
+            )
+            company.save()
+        }
     }
 
     def create() {
