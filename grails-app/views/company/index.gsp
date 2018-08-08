@@ -4,25 +4,29 @@
     <meta name="layout" content="main"/>
     <g:set var="entityName" value="${message(code: 'company.label', default: 'Company')}"/>
     <title><g:message code="default.list.label" args="[entityName]"/></title>
+    <g:link controller="logout">Logout</g:link>
 </head>
 
 <body>
-<a href="/company/upload">Upload CSV file</a>
+<g:uploadForm action="upload" method="post">
+    <input type="file" name="filecsv"/>
+    <input type="submit"/>
+</g:uploadForm>
 <g:form action="findByName" method="post">
     <div class="dialog">
-        <label for="name">Scrach by name:</label>
+        <label for="name">Scratch by name:</label>
         <input type="text" id="name" name="name"/>
     </div>
 </g:form>
 <g:form action="findByStreet" method="post">
     <div class="dialog">
-        <label for="street">Scrach by street:</label>
+        <label for="street">Scratch by street:</label>
         <input type="text" id="street" name="street"/>
     </div>
 </g:form>
 <g:form action="findByEmail" method="post">
     <div class="dialog">
-        <label for="email">Scrach by Email:</label>
+        <label for="email">Scratch by Email:</label>
         <input type="text" id="email" name="email"/>
     </div>
 </g:form>
