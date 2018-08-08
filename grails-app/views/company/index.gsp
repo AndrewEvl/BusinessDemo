@@ -6,7 +6,6 @@
     <title><g:message code="default.list.label" args="[entityName]"/></title>
     <g:link controller="logout">Logout</g:link>
 </head>
-
 <body>
 <g:uploadForm action="upload" method="post">
     <input type="file" name="filecsv"/>
@@ -30,9 +29,10 @@
         <input type="text" id="email" name="email"/>
     </div>
 </g:form>
+<a href="/user/index">User List</a>
+<g:form> <h1 resource="${importCompany}"></h1></g:form>
 <a href="#list-company" class="skip" tabindex="-1"><g:message code="default.link.skip.label"
                                                               default="Skip to content&hellip;"/></a>
-
 <div class="nav" role="navigation">
     <ul>
         <li><a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a></li>
