@@ -9,7 +9,7 @@ class Company {
 
     static constraints = {
         name(unique: ['name'], blank: false)
-        email(email: true, blank: false)
+        email(blank: false)
         street blank: false
         zip blank: false
     }

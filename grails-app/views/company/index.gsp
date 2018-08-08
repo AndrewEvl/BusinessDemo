@@ -7,6 +7,7 @@
 </head>
 
 <body>
+<a href="/company/upload">Upload CSV file</a>
 <g:form action="findByName" method="post">
     <div class="dialog">
         <label for="name">Scrach by name:</label>

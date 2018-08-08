@@ -43,7 +43,7 @@ class CompanyController {
         } else redirect(action: "index")
     }
 
-    def upload = {
+    def upload (String filecsv){
 //        request.getFile('filecsv')
 //                .inputStream
 //                .splitEachLine(',') { fields ->
@@ -67,18 +67,30 @@ class CompanyController {
 //                    street: fields[2],
 //                    zip: fields[3]
 //            )
-
-        new File("C:\\Users\\ami\\Desktop\\1.csv").splitEachLine(',') { fields ->
-            def company = new Company(name: fields[0].trim(),
-                    street: fields[1].trim(),
-                    email: fields[2].trim(),
-                    zip: fields[3].trim())
-
-            if (company.hasErrors() || company.save(flush: true) == null) {
-                log.error("___not save ${company.name}")
+        def street
+        def email
+        def zip
+        def name
+//        new File("C:\\Users\\ami\\Desktop\\1.csv").splitEachLine(',') { fields ->
+        try {
+            new File("C:\\Users\\ami\\Desktop\\1.csv").splitEachLine(',') { fields ->
+                name = fields[0].trim()
+                email = fields[1].trim()
+                street = fields[2].trim()
+                zip = fields[3].trim()
+                def company = new Company()
+                company.setName(name)
+                company.setEmail(email)
+                company.setStreet(street)
+                company.setZip(zip)
+                companyService.save(company)
+                if (company.hasErrors() || company.save(flush: true) == null) {
+                    log.error("___not save ${company.name}")
+                }
+                log.debug("___Importing domainObject  ${company.toString()}")
             }
-            log.debug("___Importing domainObject  ${company.toString()}")
-
+        }catch(ignored){
+            redirect(action: "index")
         }
 //        println params.filecsv
 //        def data = CsvParser.parseCsv("C:\\Users\\ami\\Desktop\\1.csv")
@@ -99,83 +111,83 @@ class CompanyController {
 //        println company
     }
 
-def create() {
-    respond new Company(params)
-}
-
-def save(Company company) {
-    if (company == null) {
-        notFound()
-        return
+    def create() {
+        respond new Company(params)
     }
 
-    try {
-        companyService.save(company)
-    } catch (ValidationException e) {
-        respond company.errors, view: 'create'
-        return
-    }
-
-    request.withFormat {
-        form multipartForm {
-            flash.message = message(code: 'default.created.message', args: [message(code: 'company.label', default: 'Company'), company.id])
-            redirect company
+    def save(Company company) {
+        if (company == null) {
+            notFound()
+            return
         }
-        '*' { respond company, [status: CREATED] }
-    }
-}
 
-def edit(Long id) {
-    respond companyService.get(id)
-}
-
-def update(Company company) {
-    if (company == null) {
-        notFound()
-        return
-    }
-
-    try {
-        companyService.save(company)
-    } catch (ValidationException e) {
-        respond company.errors, view: 'edit'
-        return
-    }
-
-    request.withFormat {
-        form multipartForm {
-            flash.message = message(code: 'default.updated.message', args: [message(code: 'company.label', default: 'Company'), company.id])
-            redirect company
+        try {
+            companyService.save(company)
+        } catch (ValidationException e) {
+            respond company.errors, view: 'create'
+            return
         }
-        '*' { respond company, [status: OK] }
-    }
-}
 
-def delete(Long id) {
-    if (id == null) {
-        notFound()
-        return
-    }
-
-    companyService.delete(id)
-
-    request.withFormat {
-        form multipartForm {
-            flash.message = message(code: 'default.deleted.message', args: [message(code: 'company.label', default: 'Company'), id])
-            redirect action: "index", method: "GET"
+        request.withFormat {
+            form multipartForm {
+                flash.message = message(code: 'default.created.message', args: [message(code: 'company.label', default: 'Company'), company.id])
+                redirect company
+            }
+            '*' { respond company, [status: CREATED] }
         }
-        '*' { render status: NO_CONTENT }
     }
-}
 
-protected void notFound() {
-    request.withFormat {
-        form multipartForm {
-            flash.message = message(code: 'default.not.found.message', args: [message(code: 'company.label', default: 'Company'), params.id])
-            redirect action: "index", method: "GET"
-        }
-        '*' { render status: NOT_FOUND }
+    def edit(Long id) {
+        respond companyService.get(id)
     }
-}
+
+    def update(Company company) {
+        if (company == null) {
+            notFound()
+            return
+        }
+
+        try {
+            companyService.save(company)
+        } catch (ValidationException e) {
+            respond company.errors, view: 'edit'
+            return
+        }
+
+        request.withFormat {
+            form multipartForm {
+                flash.message = message(code: 'default.updated.message', args: [message(code: 'company.label', default: 'Company'), company.id])
+                redirect company
+            }
+            '*' { respond company, [status: OK] }
+        }
+    }
+
+    def delete(Long id) {
+        if (id == null) {
+            notFound()
+            return
+        }
+
+        companyService.delete(id)
+
+        request.withFormat {
+            form multipartForm {
+                flash.message = message(code: 'default.deleted.message', args: [message(code: 'company.label', default: 'Company'), id])
+                redirect action: "index", method: "GET"
+            }
+            '*' { render status: NO_CONTENT }
+        }
+    }
+
+    protected void notFound() {
+        request.withFormat {
+            form multipartForm {
+                flash.message = message(code: 'default.not.found.message', args: [message(code: 'company.label', default: 'Company'), params.id])
+                redirect action: "index", method: "GET"
+            }
+            '*' { render status: NOT_FOUND }
+        }
+    }
 
 }
