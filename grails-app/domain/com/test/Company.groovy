@@ -25,4 +25,23 @@ class Company {
         street
         zip
     }
+
+    Company() {
+    }
+
+    Company(String name, String email, String street, String zip, String lat, String lng) {
+        this.name = name
+        this.email = email
+        this.street = street
+        this.zip = zip
+        this.lat = lat
+        this.lng = lng
+    }
+
+    Company(String name, String email, String street, String zip) {
+        this.name = name
+        this.email = email
+        this.street = street
+        this.zip = zip
+    }
 }

@@ -5,14 +5,21 @@ import grails.testing.web.controllers.ControllerUnitTest
 import grails.validation.ValidationException
 import spock.lang.*
 
+
 class CompanyControllerSpec extends Specification implements ControllerUnitTest<CompanyController>, DomainUnitTest<Company> {
 
     def populateValidParams(params) {
         assert params != null
 
         // TODO: Populate valid properties like...
-        //params["name"] = 'someValidName'
+//        params["name"] = 'someValidName'
         assert false, "TODO: Provide a populateValidParams() implementation for this generated test suite"
+    }
+
+    void "save Test" (){
+        def company = new Company("test", "test@mail.by", "Test Street", "123456").save()
+        print(company.getName())
+
     }
 
     void "Test the index action returns the correct model"() {
