@@ -1,54 +1,60 @@
-%{--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"--}%
-%{--"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">--}%
-%{--<html xmlns="http://www.w3.org/1999/xhtml">--}%
-%{--<head>--}%
-    %{--<meta http-equiv="content-type" content="text/html; charset=utf-8"/>--}%
-    %{--<title>Google Maps JavaScript API Example</title>--}%
-    %{--<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABCDE"--}%
-            %{--type="text/javascript"></script>--}%
-    %{--<script type="text/javascript">--}%
-        %{--var geocoder;--}%
-        %{--var map;--}%
+<script src="http://api-maps.yandex.ru/2.1/?load=package.full&lang=ru-RU" type="text/javascript"></script>
+<script type="text/javascript">
+    var myMap;
+    ymaps.ready(init); // Ожидание загрузки API с сервера Яндекса
+    function init () {
+        var myMap = new ymaps.Map('map', {
+                center: [53.8840516, 27.5892717],
+                zoom: 10
+            }, {
+                searchControlProvider: 'yandex#search'
+            }),
+            objectManager = new ymaps.ObjectManager({
+                // Чтобы метки начали кластеризоваться, выставляем опцию.
+                clusterize: true,
+                // ObjectManager принимает те же опции, что и кластеризатор.
+                gridSize: 32,
+                clusterDisableClickZoom: true
+            });
 
-        %{--function initialize() {--}%
-            %{--geocoder = new google.maps.Geocoder();--}%
-            %{--var latlng = new google.maps.LatLng(-34.397, 150.644);--}%
-            %{--var mapOptions = {--}%
-                %{--zoom: 8,--}%
-                %{--center: latlng--}%
-            %{--}--}%
-            %{--map = new google.maps.Map(document.getElementById('map'), mapOptions);--}%
-        %{--}--}%
+        // Чтобы задать опции одиночным объектам и кластерам,
+        // обратимся к дочерним коллекциям ObjectManager.
+        objectManager.objects.options.set('preset', 'islands#greenDotIcon');
+        objectManager.clusters.options.set('preset', 'islands#greenClusterIcons');
+        myMap.geoObjects.add(objectManager);
 
-        %{--function codeAddress() {--}%
-            %{--var address = document.getElementById('address').value;--}%
-            %{--geocoder.geocode({'address': address}, function (results, status) {--}%
-                %{--if (status == 'OK') {--}%
-                    %{--map.setCenter(results[0].geometry.location);--}%
-                    %{--var marker = new google.maps.Marker({--}%
-                        %{--map: map,--}%
-                        %{--position: results[0].geometry.location--}%
-                    %{--});--}%
-                %{--} else {--}%
-                    %{--alert('Geocode was not successful for the following reason: ' + status);--}%
-                %{--}--}%
-            %{--});--}%
-        %{--}--}%
-    %{--</script>--}%
-%{--</head>--}%
+        $.ajax({
+            url: "data.json"
+        }).done(function(data) {
+            objectManager.add(data);
+        });
 
-%{--<body onload="initialize()">--}%
-%{--<div id="map" style="width: 800px; height: 500px;"></div>--}%
-
-%{--<div>--}%
-    %{--<input id="address" type="textbox" value="Sydney, NSW">--}%
-    %{--<input type="button" value="Encode" onclick="codeAddress()">--}%
-%{--</div>--}%
-%{--</body>--}%
-
-<g:form action="map" method="post">
-    <div class="dialog">
-        <label for="address">Scratch by street:</label>
-        <input type="text" id="address" name="address"/>
-    </div>
-</g:form>
+    }
+</script>
+<html>
+<head>
+    <title>Примеры. Добавление на карту большого числа объектов</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script src="https://api-maps.yandex.ru/2.1/?lang=ru-RU" type="text/javascript"></script>
+    <script src="https://yandex.st/jquery/2.2.3/jquery.min.js" type="text/javascript"></script>
+    <script src="object_manager.js" type="text/javascript"></script>
+    <style>
+    html, body, #map {
+        width: 100%; height: 100%; padding: 0; margin: 0;
+    }
+    a {
+        color: #04b; /* Цвет ссылки */
+        text-decoration: none; /* Убираем подчеркивание у ссылок */
+    }
+    a:visited {
+        color: #04b; /* Цвет посещённой ссылки */
+    }
+    a:hover {
+        color: #f50000; /* Цвет ссылки при наведении на нее курсора мыши */
+    }
+    </style>
+</head>
+<body>
+<div id="map" style="width: 1500px; height: 900px"></div>
+</body>
+</html>

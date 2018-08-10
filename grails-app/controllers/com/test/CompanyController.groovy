@@ -4,14 +4,13 @@ import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.ValidationException
 import groovy.json.JsonSlurper
 
-
 import static org.springframework.http.HttpStatus.*
 
 class CompanyController {
 
     CompanyService companyService
 
-    static def googleMapKey = "AIzaSyD6sJ2o5Cjkhp3QvzBIZ6JWTEL4mcmuXEk"
+    static final googleMapKey = "AIzaSyAkb-iWBBb8gtoQsWnZmQJeqt5wPUQQaf8"
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
     @Secured(['ROLE_USER', 'ROLE_ADMIN'])
@@ -58,7 +57,7 @@ class CompanyController {
     @Secured(['ROLE_USER', 'ROLE_ADMIN'])
     def upload(String filecsv) {
         def urltest = "https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&key=AIzaSyDjL4WbUKAMlKNG8ub6jwpxkuSYpk3mFX0"
-        def file = request.getFile('fivecsv')
+//        def file = request.getFile('fivecsv')
         def path = filecsv
 
         def street
@@ -68,25 +67,24 @@ class CompanyController {
         def importCompany = 0
 //        new File("C:\\Users\\ami\\Desktop\\1.csv").splitEachLine(',') { fields ->
         try {
-            new File("C:\\Users\\ami\\Desktop\\1.csv").splitEachLine(',') { fields ->
+            def file1 = new File("C:\\Users\\ami\\Desktop\\1.csv")
+            file1.splitEachLine(';') { fields ->
                 name = fields[0].trim()
                 email = fields[1].trim()
                 street = fields[2].trim()
                 zip = fields[3].trim()
-                def company = new Company(name, email, street, zip).save()
+                def company = new Company(name, email, street, zip)
+                def googleUrl = "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=" + street.replaceAll("\\s", "+")
+                println googleUrl
+                def companyLatLng = requestGoogleMapsUrl(company).save()
                 importCompany++
-//                def googleUrl = "https://maps.googleapis.com/maps/api/geocode/json?address=" + street.replaceAll("\\s","+") + "&key=" + googleMapKey
-//                println googleUrl
-                requestGoogleMapsUrl(street)
-                println "---" + company.getName() + " save"
-                if (company.hasErrors() || company.save(flush: true) == null) {
-                    log.error("___not save ${company.name}")
-                }
-                log.debug("___Importing domainObject  ${company.toString()}")
+                println "---" + companyLatLng.getName() + " save"
+                flash.message = message(code: 'default.company.add.message', args: [message(code: importCompany)])
+                redirect(action: "index")
             }
         } catch (ignored) {
-            redirect(action: "index")
-            render(view: 'index', model: [importCompany: importCompany])
+            flash.message = message(code: 'default.not.save.message', args: [message(code: name)])
+            redirect action: "index", method: "POST"
         }
     }
 
@@ -178,41 +176,29 @@ class CompanyController {
         }
     }
 
-    void requestGoogleMapsUrl(String street) {
+    private static Company requestGoogleMapsUrl(Company company) {
 
-        URL url = new URL("https://maps.googleapis.com/maps/api/geocode/json?address=" + street.replaceAll("\\s", "+") + "&key=" + googleMapKey)
+        URL url = new URL("https://geocode-maps.yandex.ru/1.x/?format=json&geocode=" + company.getStreet().replaceAll("\\s", "+"))
         HttpURLConnection connection = (HttpURLConnection) url.openConnection()
         connection.setRequestMethod("GET")
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))
 
+//        def reader = new FileReader("D:\\projects\\demo\\jsonRespouns.json")
         JsonSlurper jsonSlurper = new JsonSlurper()
         Object result = jsonSlurper.parse(reader)
 
-        HashMap<String, String> jsonResult = (HashMap) result
-
-        String status = jsonResult.get("error_message")
-        println status
-
-//        Map location = (Map)jsonResult.get("location")
-//        String lat = (String)location.get("lat")
-//        String lng = (String)location.get("lng")
-
-//        println lat + lng
-
-        String inputLine
-        StringBuffer response = new StringBuffer()
-
-        while ((inputLine = reader.readLine()) != null) {
-            response.append(inputLine)
-        }
-
-
-//        println response.toString().find("^")
-
-        println response.toString().replaceAll("\\s", "")
+        def jsonResult =  result
+        def location = jsonResult.response.GeoObjectCollection.featureMember.GeoObject.Point
+        String coordinate = location.pos
+        String lat = coordinate.find("[\\d.]+\\s").replaceAll("\\s","")
+        String lng =coordinate.find("\\s[\\d.]+").replaceAll("\\s","")
+        println coordinate
+        company.setLng(lng)
+        company.setLat(lat)
 
         reader.close()
-
+        return company
     }
+
 }

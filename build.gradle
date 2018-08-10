@@ -49,6 +49,7 @@ dependencies {
     compile 'com.xlson.groovycsv:groovycsv:1.1'
     compile 'com.opencsv:opencsv:4.2'
 //    compile 'org.grails.plugins:rx-gorm-rest-client:1.0.4.RELEASE'
+    compile 'org.grails.plugins:http-builder-helper:1.1.0'
     compile 'org.grails.plugins:spring-security-core:3.2.3'
     compile 'org.grails.plugins:spring-security-ui:3.1.2'
     console "org.grails:grails-console"

@@ -8,7 +8,9 @@ class BootStrap {
                 name: "Company",
                 street: "Партизанский проспект 19, Минск",
                 email: "tets@mail.com",
-                zip: "220037"
+                zip: "220037",
+                lat: "53.8840516",
+                lng: "27.5892717"
 
         )
         company.save()

@@ -4,7 +4,7 @@
     <meta name="layout" content="main"/>
     <g:set var="entityName" value="${message(code: 'company.label', default: 'Company')}"/>
     <title><g:message code="default.list.label" args="[entityName]"/></title>
-    <g:link controller="logout">Logout</g:link>
+    <g:link uri="/logoff">Logout</g:link>
 </head>
 
 <body>
@@ -30,8 +30,10 @@
         <input type="text" id="email" name="email"/>
     </div>
 </g:form>
-<a href="/user/index">User List</a>
-<g:form><h1 resource="${importCompany}"></h1></g:form>
+<sec:ifAnyGranted roles="ROLE_ADMIN">
+    || <a href="/user/index">User List</a> ||
+</sec:ifAnyGranted>
+<a href="/company/mapEncoder">Company on map</a> ||
 <a href="#list-company" class="skip" tabindex="-1"><g:message code="default.link.skip.label"
                                                               default="Skip to content&hellip;"/></a>
 
