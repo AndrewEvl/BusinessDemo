@@ -3,6 +3,7 @@ package com.test
 import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.ValidationException
 import groovy.json.JsonSlurper
+import net.sf.json.JSON
 
 import static org.springframework.http.HttpStatus.*
 
@@ -15,6 +16,14 @@ class CompanyController {
 
     @Secured(['ROLE_USER', 'ROLE_ADMIN'])
     def index(Integer max) {
+        HashMap jsonMap = new HashMap()
+        List companyList = Company.list()
+
+        jsonMap.features = companyList.collect{comp ->return ["type": "Feature", id: comp.id , name:comp.name]}
+
+//        render jsonMap as JSON
+
+        println jsonMap as JSON
         params.max = Math.min(max ?: 10, 100)
         respond companyService.list(params), model: [companyCount: companyService.count()]
     }
@@ -25,8 +34,15 @@ class CompanyController {
     }
 
     @Secured(['ROLE_USER', 'ROLE_ADMIN'])
-    def mapEncoder(String address) {
+    def mapEncoder() {
+        HashMap jsonMap = new HashMap()
+        List companyList = Company.list()
 
+        jsonMap.features = companyList.collect{comp ->return ["type": "Feature", id: comp.id , name:comp.name]}
+
+        render jsonMap as JSON
+
+        println jsonMap as JSON
     }
 
     @Secured(['ROLE_USER', 'ROLE_ADMIN'])
@@ -86,10 +102,6 @@ class CompanyController {
             flash.message = message(code: 'default.not.save.message', args: [message(code: name)])
             redirect action: "index", method: "POST"
         }
-    }
-
-    @Secured(['ROLE_USER', 'ROLE_ADMIN'])
-    def map() {
     }
 
     @Secured(['ROLE_USER', 'ROLE_ADMIN'])
