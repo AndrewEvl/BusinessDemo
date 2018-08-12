@@ -6,11 +6,10 @@
     <title><g:message code="default.list.label" args="[entityName]"/></title>
     <g:link uri="/logoff">Logout</g:link>
 </head>
-
 <body>
-<g:uploadForm action="upload" method="post">
-    <input type="file" name="filecsv"/>
-    <input type="submit"/>
+<g:uploadForm action="upload">
+    <input type="file" name="myFile" />
+    <input type="submit" />
 </g:uploadForm>
 <g:form action="findByName" method="post">
     <div class="dialog">

@@ -1,4 +1,5 @@
 <script src="http://api-maps.yandex.ru/2.1/?load=package.full&lang=ru-RU" type="text/javascript"></script>
+<html>
 <script type="text/javascript">
     var myMap;
     ymaps.ready(init); // Ожидание загрузки API с сервера Яндекса
@@ -22,16 +23,14 @@
         objectManager.objects.options.set('preset', 'islands#greenDotIcon');
         objectManager.clusters.options.set('preset', 'islands#greenClusterIcons');
         myMap.geoObjects.add(objectManager);
-
         $.ajax({
-            url: "data.json"
-        }).done(function(data) {
-            objectManager.add(data);
+                url: "/company/mapEncoder"
+    }).done(function(raw${data}) {
+            objectManager.add(raw${data});
         });
 
     }
 </script>
-<html>
 <head>
     <title>Примеры. Добавление на карту большого числа объектов</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -55,6 +54,6 @@
     </style>
 </head>
 <body>
-<div id="map" style="width: 1500px; height: 900px"></div>
+<div id="map" style="width: 100px; height: 100px"></div>
 </body>
 </html>

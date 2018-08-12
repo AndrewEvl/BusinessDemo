@@ -1,88 +1,58 @@
 {
-  "response": {
-    "GeoObjectCollection": {
-      "metaDataProperty": {
-        "GeocoderResponseMetaData": {
-          "request": "Москва, улица Новый Арбат, дом 24",
-          "found": "1",
-          "results": "10"
-        }
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": 0,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          55.831903,
+          37.411961
+        ]
       },
-      "featureMember": [
-        {
-          "GeoObject": {
-            "metaDataProperty": {
-              "GeocoderMetaData": {
-                "kind": "house",
-                "text": "Россия, Москва, улица Новый Арбат, 24",
-                "precision": "exact",
-                "Address": {
-                  "country_code": "RU",
-                  "postal_code": "119019",
-                  "formatted": "Москва, улица Новый Арбат, 24",
-                  "Components": [
-                    {
-                      "kind": "country",
-                      "name": "Россия"
-                    },
-                    {
-                      "kind": "province",
-                      "name": "Центральный федеральный округ"
-                    },
-                    {
-                      "kind": "province",
-                      "name": "Москва"
-                    },
-                    {
-                      "kind": "locality",
-                      "name": "Москва"
-                    },
-                    {
-                      "kind": "street",
-                      "name": "улица Новый Арбат"
-                    },
-                    {
-                      "kind": "house",
-                      "name": "24"
-                    }
-                  ]
-                },
-                "AddressDetails": {
-                  "Country": {
-                    "AddressLine": "Москва, улица Новый Арбат, 24",
-                    "postal_code": "119019",
-                    "CountryNameCode": "RU",
-                    "CountryName": "Россия",
-                    "AdministrativeArea": {
-                      "AdministrativeAreaName": "Москва",
-                      "Locality": {
-                        "LocalityName": "Москва",
-                        "Thoroughfare": {
-                          "ThoroughfareName": "улица Новый Арбат",
-                          "Premise": {
-                            "PremiseNumber": "24"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "description": "Москва, Россия",
-            "name": "улица Новый Арбат, 24",
-            "boundedBy": {
-              "Envelope": {
-                "lowerCorner": "37.583508 55.750768",
-                "upperCorner": "37.591719 55.755398"
-              }
-            },
-            "Point": {
-              "pos": "37.587614 55.753083"
-            }
-          }
-        }
-      ]
+      "properties": {
+        "balloonContentHeader": "<font size=3><b><a target='_blank' href='https://yandex.ru'>Здесь может быть ваша ссылка</a></b></font>",
+        "balloonContentBody": "<p>Ваше имя: <input name='login'></p><p><em>Телефон в формате 2xxx-xxx:</em>  <input></p><p><input type='submit' value='Отправить'></p>",
+        "balloonContentFooter": "<font size=1>Информация предоставлена: </font> <strong>этим балуном</strong>",
+        "clusterCaption": "<strong><s>Еще</s> одна</strong> метка",
+        "hintContent": "<strong>Текст  <s>подсказки</s></strong>"
+      }
     }
-  }
+  ]
+}
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      id=1,
+      type=Point,
+      coordinates=
+    [
+      27.59515,
+      53.882959
+    ],
+    name=Company
+    },
+    {
+      id=2,
+      type=Point,
+      coordinates=
+    [
+      27.591475,
+      53.884052
+    ],
+    name=Company2
+    },
+    {
+      id=3,
+      type=Point,
+      coordinates=
+    [
+      27.589499,
+      53.884631
+    ],
+    name=Company3
+    }
+  ]
 }

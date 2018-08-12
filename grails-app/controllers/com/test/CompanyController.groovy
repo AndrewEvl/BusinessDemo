@@ -1,5 +1,6 @@
 package com.test
 
+
 import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.ValidationException
 import groovy.json.JsonSlurper
@@ -11,38 +12,40 @@ class CompanyController {
 
     CompanyService companyService
 
-    static final googleMapKey = "AIzaSyAkb-iWBBb8gtoQsWnZmQJeqt5wPUQQaf8"
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
     @Secured(['ROLE_USER', 'ROLE_ADMIN'])
     def index(Integer max) {
-        HashMap jsonMap = new HashMap()
-        List companyList = Company.list()
-
-        jsonMap.features = companyList.collect{comp ->return ["type": "Feature", id: comp.id , name:comp.name]}
-
-//        render jsonMap as JSON
-
-        println jsonMap as JSON
         params.max = Math.min(max ?: 10, 100)
         respond companyService.list(params), model: [companyCount: companyService.count()]
     }
 
     @Secured(['ROLE_USER', 'ROLE_ADMIN'])
     def show(Long id) {
+        def company = companyService.get(id)
+        if (company.getLng() == null) {
+            def mapsUrl = requestYandexMapsUrl(company)
+            companyService.save(mapsUrl)
+        }
         [company: companyService.get(id)]
     }
 
     @Secured(['ROLE_USER', 'ROLE_ADMIN'])
     def mapEncoder() {
-        HashMap jsonMap = new HashMap()
+        HashMap data = new HashMap()
         List companyList = Company.list()
 
-        jsonMap.features = companyList.collect{comp ->return ["type": "Feature", id: comp.id , name:comp.name]}
+        data.features = companyList
+                .collect { comp ->
+            return [id           : comp.id,
+                    "type"       : "Point",
+                    "coordinates": comp.coordinates,
+                    name         : comp.name]
+        }
+        render(view: "mapEncoder", model: [data: data as JSON])
+        data as JSON
 
-        render jsonMap as JSON
-
-        println jsonMap as JSON
+        println data as JSON
     }
 
     @Secured(['ROLE_USER', 'ROLE_ADMIN'])
@@ -71,20 +74,21 @@ class CompanyController {
 
 
     @Secured(['ROLE_USER', 'ROLE_ADMIN'])
-    def upload(String filecsv) {
-        def urltest = "https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&key=AIzaSyDjL4WbUKAMlKNG8ub6jwpxkuSYpk3mFX0"
-//        def file = request.getFile('fivecsv')
-        def path = filecsv
+    def upload() {
 
+//        def get = request.getFile('myFile')
+//        get.transferTo(new File("C:\\Users\\Lino\\IdeaProjects\\BusinessDemo\\files\\1.csv", get.getOriginalFilename()))
         def street
         def email
         def zip
         def name
         def importCompany = 0
+
 //        new File("C:\\Users\\ami\\Desktop\\1.csv").splitEachLine(',') { fields ->
         try {
-            def file1 = new File("C:\\Users\\ami\\Desktop\\1.csv")
-            file1.splitEachLine(';') { fields ->
+//            def file = new File("C:\\Users\\Lino\\IdeaProjects\\BusinessDemo\\files\\1.csv",get.getOriginalFilename())
+            def file = new File("C:\\Users\\Lino\\Desktop\\11.csv")
+            file.splitEachLine(';') { fields ->
                 name = fields[0].trim()
                 email = fields[1].trim()
                 street = fields[2].trim()
@@ -92,8 +96,9 @@ class CompanyController {
                 def company = new Company(name, email, street, zip)
                 def googleUrl = "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=" + street.replaceAll("\\s", "+")
                 println googleUrl
-                def companyLatLng = requestGoogleMapsUrl(company).save()
+                def companyLatLng = requestYandexMapsUrl(company).save()
                 importCompany++
+
                 println "---" + companyLatLng.getName() + " save"
                 flash.message = message(code: 'default.company.add.message', args: [message(code: importCompany)])
                 redirect(action: "index")
@@ -103,6 +108,7 @@ class CompanyController {
             redirect action: "index", method: "POST"
         }
     }
+
 
     @Secured(['ROLE_USER', 'ROLE_ADMIN'])
     def create() {
@@ -188,7 +194,7 @@ class CompanyController {
         }
     }
 
-    private static Company requestGoogleMapsUrl(Company company) {
+    private static Company requestYandexMapsUrl(Company company) {
 
         URL url = new URL("https://geocode-maps.yandex.ru/1.x/?format=json&geocode=" + company.getStreet().replaceAll("\\s", "+"))
         HttpURLConnection connection = (HttpURLConnection) url.openConnection()
@@ -200,12 +206,13 @@ class CompanyController {
         JsonSlurper jsonSlurper = new JsonSlurper()
         Object result = jsonSlurper.parse(reader)
 
-        def jsonResult =  result
+        def jsonResult = result
         def location = jsonResult.response.GeoObjectCollection.featureMember.GeoObject.Point
         String coordinate = location.pos
-        String lat = coordinate.find("[\\d.]+\\s").replaceAll("\\s","")
-        String lng =coordinate.find("\\s[\\d.]+").replaceAll("\\s","")
+        String lat = coordinate.find("[\\d.]+\\s").replaceAll("\\s", "")
+        String lng = coordinate.find("\\s[\\d.]+").replaceAll("\\s", "")
         println coordinate
+        company.setCoordinates("[" + lat + ", " + lng + "]")
         company.setLng(lng)
         company.setLat(lat)
 

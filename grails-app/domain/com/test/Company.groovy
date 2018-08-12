@@ -9,6 +9,7 @@ class Company {
     String zip
     String lat
     String lng
+    String coordinates
 
     static constraints = {
         name(unique: ['name'], blank: false)
@@ -17,6 +18,7 @@ class Company {
         zip (blank: false)
         lat (nullable: true)
         lng (nullable: true)
+        coordinates(nullable: true)
     }
 
     String toString() {
