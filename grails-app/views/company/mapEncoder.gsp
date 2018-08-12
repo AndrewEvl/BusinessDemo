@@ -1,7 +1,6 @@
 <script src="http://api-maps.yandex.ru/2.1/?load=package.full&lang=ru-RU" type="text/javascript"></script>
 <html>
 <script type="text/javascript">
-    var myMap;
     ymaps.ready(init); // Ожидание загрузки API с сервера Яндекса
     function init () {
         var myMap = new ymaps.Map('map', {
@@ -24,7 +23,7 @@
         objectManager.clusters.options.set('preset', 'islands#greenClusterIcons');
         myMap.geoObjects.add(objectManager);
         $.ajax({
-                url: "/company/mapEncoder"
+                url: "data.json"
     }).done(function(raw${data}) {
             objectManager.add(raw${data});
         });
@@ -54,6 +53,6 @@
     </style>
 </head>
 <body>
-<div id="map" style="width: 100px; height: 100px"></div>
+<div id="map" style="width: 800px; height: 800px"></div>
 </body>
 </html>

@@ -5,6 +5,8 @@ import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.ValidationException
 import groovy.json.JsonSlurper
 import net.sf.json.JSON
+import net.sf.json.JSONArray
+import net.sf.json.JSONObject
 
 import static org.springframework.http.HttpStatus.*
 
@@ -33,19 +35,24 @@ class CompanyController {
     @Secured(['ROLE_USER', 'ROLE_ADMIN'])
     def mapEncoder() {
         HashMap data = new HashMap()
+        JSONObject jsonObject = new JSONObject()
         List companyList = Company.list()
 
-        data.features = companyList
-                .collect { comp ->
-            return [id           : comp.id,
-                    "type"       : "Point",
-                    "coordinates": comp.coordinates,
-                    name         : comp.name]
-        }
-        render(view: "mapEncoder", model: [data: data as JSON])
-        data as JSON
+        jsonObject.put("type","FeatureCollection")
+        jsonObject.put("features", companyList)
 
-        println data as JSON
+        println jsonObject as JSON
+
+//        data.features = companyList
+//                .collect { comp ->
+//            return [id           : comp.id,
+//                    "type"       : "Point",
+//                    "coordinates": comp.coordinates,
+//                    name         : comp.name]
+//        }
+//        render(view: "mapEncoder", model: [data: data as JSON])
+//
+//        println data as JSON
     }
 
     @Secured(['ROLE_USER', 'ROLE_ADMIN'])
@@ -78,10 +85,10 @@ class CompanyController {
 
 //        def get = request.getFile('myFile')
 //        get.transferTo(new File("C:\\Users\\Lino\\IdeaProjects\\BusinessDemo\\files\\1.csv", get.getOriginalFilename()))
-        def street
-        def email
-        def zip
         def name
+        def email
+        def street
+        def zip
         def importCompany = 0
 
 //        new File("C:\\Users\\ami\\Desktop\\1.csv").splitEachLine(',') { fields ->
@@ -89,6 +96,10 @@ class CompanyController {
 //            def file = new File("C:\\Users\\Lino\\IdeaProjects\\BusinessDemo\\files\\1.csv",get.getOriginalFilename())
             def file = new File("C:\\Users\\Lino\\Desktop\\11.csv")
             file.splitEachLine(';') { fields ->
+//                if (name = fields[0].trim().isEmpty()) {
+//                    flash.message = message(code: 'default.not.save.message', args: [message(code: name)])
+//                    return redirect (action: "index" , method: "POST")
+//                }
                 name = fields[0].trim()
                 email = fields[1].trim()
                 street = fields[2].trim()
@@ -105,7 +116,7 @@ class CompanyController {
             }
         } catch (ignored) {
             flash.message = message(code: 'default.not.save.message', args: [message(code: name)])
-            redirect action: "index", method: "POST"
+            redirect (action: "index", method: "POST")
         }
     }
 
