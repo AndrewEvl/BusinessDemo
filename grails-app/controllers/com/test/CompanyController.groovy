@@ -4,9 +4,6 @@ package com.test
 import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.ValidationException
 import groovy.json.JsonSlurper
-import net.sf.json.JSON
-import net.sf.json.JSONArray
-import net.sf.json.JSONObject
 
 import static org.springframework.http.HttpStatus.*
 
@@ -71,29 +68,32 @@ class CompanyController {
 
     @Secured(['ROLE_USER', 'ROLE_ADMIN'])
     def upload() {
-
-//        def get = request.getFile('myFile')
-//        get.transferTo(new File("C:\\Users\\ami\\IdeaProjects\\BusinessDemo\\files\\", get.getOriginalFilename()))
         def name
         def email
         def street
         def zip
         def importCompany = 0
 
-//            def file = new File("C:\\Users\\Lino\\IdeaProjects\\BusinessDemo\\files\\1.csv",get.getOriginalFilename())
-//                def file = new File("C:\\Users\\ami\\IdeaProjects\\BusinessDemo\\files\\", get.getOriginalFilename)
-        def file = new File("C:\\Users\\ami\\Desktop\\1.csv")
-        file.splitEachLine(';') { fields ->
-            name = fields[0].trim()
-            email = fields[1].trim()
-            street = fields[2].trim()
-            zip = fields[3].trim()
-            def company = new Company(name, email, street, zip)
-            requestYandexMapsUrl(company).save()
-            importCompany++
+        try {
+            request.getFile('myFile')
+                    .inputStream
+                    .splitEachLine(';') { fields ->
+                name = fields[0]
+                email = fields[1]
+                street = fields[2]
+                zip = fields[3]
 
+                def company = new Company(name, email, street, zip)
+                requestYandexMapsUrl(company).save()
+                importCompany++
+            }
             flash.message = message(code: 'default.company.add.message', args: [message(code: importCompany)])
-            render(action: "index")
+                redirect action: "index", method: "GET"
+        }
+
+        catch (NullPointerException) {
+            flash.message = message(code: 'default.exists.db.message', args: [message(code: name)])
+            redirect action: "index", method: "GET"
         }
     }
 
@@ -139,7 +139,8 @@ class CompanyController {
         }
 
         try {
-            companyService.save(company)
+            requestYandexMapsUrl(company).save()
+//            companyService.save(company)
         } catch (ValidationException e) {
             respond company.errors, view: 'edit'
             return
@@ -199,7 +200,7 @@ class CompanyController {
         String coordinate = location.pos
         String lat = coordinate.find("[\\d.]+\\s").replaceAll("\\s", "")
         String lng = coordinate.find("\\s[\\d.]+").replaceAll("\\s", "")
-        println coordinate
+
         company.setCoordinates(lng + ", " + lat)
         company.setLng(lng)
         company.setLat(lat)
