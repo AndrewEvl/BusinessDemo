@@ -34,25 +34,14 @@ class CompanyController {
 
     @Secured(['ROLE_USER', 'ROLE_ADMIN'])
     def mapEncoder() {
-        HashMap data = new HashMap()
-        JSONObject jsonObject = new JSONObject()
+
         List companyList = Company.list()
-
-        jsonObject.put("type","FeatureCollection")
-        jsonObject.put("features", companyList)
-
-        println jsonObject as JSON
-
-//        data.features = companyList
-//                .collect { comp ->
-//            return [id           : comp.id,
-//                    "type"       : "Point",
-//                    "coordinates": comp.coordinates,
-//                    name         : comp.name]
-//        }
-//        render(view: "mapEncoder", model: [data: data as JSON])
-//
-//        println data as JSON
+        def data = companyList
+                .collect { comp ->
+            return [comp.coordinates,
+            ]
+        }
+        render(view: "mapEncoder", model: [data: data])
     }
 
     @Secured(['ROLE_USER', 'ROLE_ADMIN'])
@@ -84,39 +73,27 @@ class CompanyController {
     def upload() {
 
 //        def get = request.getFile('myFile')
-//        get.transferTo(new File("C:\\Users\\Lino\\IdeaProjects\\BusinessDemo\\files\\1.csv", get.getOriginalFilename()))
+//        get.transferTo(new File("C:\\Users\\ami\\IdeaProjects\\BusinessDemo\\files\\", get.getOriginalFilename()))
         def name
         def email
         def street
         def zip
         def importCompany = 0
 
-//        new File("C:\\Users\\ami\\Desktop\\1.csv").splitEachLine(',') { fields ->
-        try {
 //            def file = new File("C:\\Users\\Lino\\IdeaProjects\\BusinessDemo\\files\\1.csv",get.getOriginalFilename())
-            def file = new File("C:\\Users\\Lino\\Desktop\\11.csv")
-            file.splitEachLine(';') { fields ->
-//                if (name = fields[0].trim().isEmpty()) {
-//                    flash.message = message(code: 'default.not.save.message', args: [message(code: name)])
-//                    return redirect (action: "index" , method: "POST")
-//                }
-                name = fields[0].trim()
-                email = fields[1].trim()
-                street = fields[2].trim()
-                zip = fields[3].trim()
-                def company = new Company(name, email, street, zip)
-                def googleUrl = "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=" + street.replaceAll("\\s", "+")
-                println googleUrl
-                def companyLatLng = requestYandexMapsUrl(company).save()
-                importCompany++
+//                def file = new File("C:\\Users\\ami\\IdeaProjects\\BusinessDemo\\files\\", get.getOriginalFilename)
+        def file = new File("C:\\Users\\ami\\Desktop\\1.csv")
+        file.splitEachLine(';') { fields ->
+            name = fields[0].trim()
+            email = fields[1].trim()
+            street = fields[2].trim()
+            zip = fields[3].trim()
+            def company = new Company(name, email, street, zip)
+            requestYandexMapsUrl(company).save()
+            importCompany++
 
-                println "---" + companyLatLng.getName() + " save"
-                flash.message = message(code: 'default.company.add.message', args: [message(code: importCompany)])
-                redirect(action: "index")
-            }
-        } catch (ignored) {
-            flash.message = message(code: 'default.not.save.message', args: [message(code: name)])
-            redirect (action: "index", method: "POST")
+            flash.message = message(code: 'default.company.add.message', args: [message(code: importCompany)])
+            render(action: "index")
         }
     }
 
@@ -223,7 +200,7 @@ class CompanyController {
         String lat = coordinate.find("[\\d.]+\\s").replaceAll("\\s", "")
         String lng = coordinate.find("\\s[\\d.]+").replaceAll("\\s", "")
         println coordinate
-        company.setCoordinates("[" + lat + ", " + lng + "]")
+        company.setCoordinates(lng + ", " + lat)
         company.setLng(lng)
         company.setLat(lat)
 
