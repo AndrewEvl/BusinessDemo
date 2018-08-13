@@ -1,6 +1,6 @@
 package com.test
 
-
+import com.opencsv.CSVReader
 import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.ValidationException
 import groovy.json.JsonSlurper
@@ -70,34 +70,24 @@ class CompanyController {
     def upload() {
         def name
         def importCompany = 0
-
         try {
-            request.getFile('myFile')
-                    .inputStream
-                    .splitEachLine(';') { fields ->
-                def company = new Company(
-                        name: fields[0],
-                        email: fields[1],
-                        street: fields[2],
-                        zip: fields[3])
-                name = fields[0]
-                def findByName = Company.findByName(name)
-                if (findByName == null) {
-                    requestYandexMapsUrl(company).save()
-                    importCompany++
-                } else {
-                    return new NullPointerException()
-                }
+            def file = request.getFile('file1')
+            CSVReader reader = new CSVReader(new InputStreamReader(file.inputStream))
+            String[] nextLine = reader.readNext()
+            while ((nextLine = reader.readNext()) != null) {
+                def company = new Company(nextLine[0], nextLine[1], nextLine[2], nextLine[3])
+                requestYandexMapsUrl(company).save()
+                name = nextLine[0]
+                importCompany++
             }
-            if(importCompany == 0) {
+            if (importCompany == 0) {
                 flash.message = message(code: 'default.exists.db.message', args: [message(code: name)])
                 redirect action: "index", method: "GET"
-            }else {
-                flash.message = message(code: 'default.company.add.message', args: [message(code: importCompany)])
+            } else {
+               flash.message = message(code: 'default.company.add.message', args: [message(code: importCompany)])
                 redirect action: "index", method: "GET"
             }
-        }
-        catch (NullPointerException) {
+        } catch (NullPointerException) {
             flash.message = message(code: 'default.exists.db.message', args: [message(code: name)])
             redirect action: "index", method: "GET"
         }
