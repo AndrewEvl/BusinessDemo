@@ -69,34 +69,39 @@ class CompanyController {
     @Secured(['ROLE_USER', 'ROLE_ADMIN'])
     def upload() {
         def name
-        def email
-        def street
-        def zip
         def importCompany = 0
 
         try {
             request.getFile('myFile')
                     .inputStream
                     .splitEachLine(';') { fields ->
+                def company = new Company(
+                        name: fields[0],
+                        email: fields[1],
+                        street: fields[2],
+                        zip: fields[3])
                 name = fields[0]
-                email = fields[1]
-                street = fields[2]
-                zip = fields[3]
-
-                def company = new Company(name, email, street, zip)
-                requestYandexMapsUrl(company).save()
-                importCompany++
+                def findByName = Company.findByName(name)
+                if (findByName == null) {
+                    requestYandexMapsUrl(company).save()
+                    importCompany++
+                } else {
+                    return new NullPointerException()
+                }
             }
-            flash.message = message(code: 'default.company.add.message', args: [message(code: importCompany)])
+            if(importCompany == 0) {
+                flash.message = message(code: 'default.exists.db.message', args: [message(code: name)])
                 redirect action: "index", method: "GET"
+            }else {
+                flash.message = message(code: 'default.company.add.message', args: [message(code: importCompany)])
+                redirect action: "index", method: "GET"
+            }
         }
-
         catch (NullPointerException) {
             flash.message = message(code: 'default.exists.db.message', args: [message(code: name)])
             redirect action: "index", method: "GET"
         }
     }
-
 
     @Secured(['ROLE_USER', 'ROLE_ADMIN'])
     def create() {
@@ -139,8 +144,8 @@ class CompanyController {
         }
 
         try {
-            requestYandexMapsUrl(company).save()
-//            companyService.save(company)
+            def mapsUrl = requestYandexMapsUrl(company)
+            companyService.save(mapsUrl)
         } catch (ValidationException e) {
             respond company.errors, view: 'edit'
             return
@@ -190,8 +195,6 @@ class CompanyController {
         connection.setRequestMethod("GET")
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))
-
-//        def reader = new FileReader("D:\\projects\\demo\\jsonRespouns.json")
         JsonSlurper jsonSlurper = new JsonSlurper()
         Object result = jsonSlurper.parse(reader)
 
